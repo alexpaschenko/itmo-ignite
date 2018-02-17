@@ -6,10 +6,10 @@ import org.apache.ignite.Ignition;
 
 import static ru.ifmo.escience.ignite.Utils.print;
 import static ru.ifmo.escience.ignite.Utils.readln;
+import static ru.ifmo.escience.ignite.week2.cache.CacheUtils.TOTAL;
+import static ru.ifmo.escience.ignite.week2.cache.CacheUtils.printCacheStats;
 
 public class CacheMainFirst {
-    private final static int TOTAL = 1000;
-
     public static void main(String[] args) throws Exception {
         try (Ignite ignite = Ignition.start("Week2/config/default.xml")) {
             int cnt = randomNumber();
@@ -37,7 +37,7 @@ public class CacheMainFirst {
 
             checkResult(done, sum);
 
-            CacheUtils.printCacheStats(ignite);
+            printCacheStats(ignite);
 
             readln();
         }

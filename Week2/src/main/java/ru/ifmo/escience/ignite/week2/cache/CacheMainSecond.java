@@ -17,13 +17,12 @@ public class CacheMainSecond {
             while (cache.get("START") == null)
                 Thread.sleep(500);
 
-            //TODO SET YOUR RANDOM NUMBER HERE
             int cnt = cache.size() - 1;
 
             print("Cache size: " + cnt);
 
             //TODO PUT DATA HERE
-            for (int i = 0; i < cnt; i++)
+            for (int i = 0; i == 0; i++)
                 ;
 
             int sum = sumFromCache(cache);

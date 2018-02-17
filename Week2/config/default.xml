@@ -31,6 +31,7 @@
                     <property name="name" value="mycache"/>
                     <property name="atomicityMode" value="ATOMIC"/>
                     <property name="backups" value="1"/>
+                    <property name="rebalanceMode" value="SYNC"/>
                 </bean>
             </list>
         </property>

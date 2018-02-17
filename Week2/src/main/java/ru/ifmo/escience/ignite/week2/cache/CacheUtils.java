@@ -7,6 +7,8 @@ import org.apache.ignite.cache.CachePeekMode;
 import static ru.ifmo.escience.ignite.Utils.print;
 
 public class CacheUtils {
+    public final static int TOTAL = 1000;
+
     public static void printCacheStats(Ignite ignite) {
         IgniteCache<Object, Object> cache = ignite.cache("mycache");
 
@@ -17,5 +19,9 @@ public class CacheUtils {
         print("Primary entries: " + cache.localSize(CachePeekMode.PRIMARY));
 
         //TODO PRINT NUMBER OF BACKUP ITEMS HERE
+    }
+
+    private CacheUtils() {
+        // No-op
     }
 }
