@@ -18,6 +18,7 @@ public class ClusterMain {
             }
 
             print("Another node found!");
+            print("Press <Enter> to exit...");
 
             readln();
         }

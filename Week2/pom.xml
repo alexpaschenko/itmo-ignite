@@ -17,10 +17,5 @@
             <artifactId>ignite</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>ru.ifmo.escience</groupId>
-            <artifactId>ignite</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 </project>
