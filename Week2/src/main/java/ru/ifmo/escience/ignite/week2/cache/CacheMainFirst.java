@@ -14,7 +14,7 @@ public class CacheMainFirst {
         try (Ignite ignite = Ignition.start("Week2/config/default.xml")) {
             int cnt = randomNumber();
 
-            int sum = calculateExpectedSum(cnt);
+            long sum = calculateExpectedSum(cnt);
 
             print("Random number is: " + cnt);
             print("Another node must put this number of items: " + (TOTAL - cnt));
@@ -30,10 +30,10 @@ public class CacheMainFirst {
 
             Object done;
 
-            while ((done = cache.get("FINISH")) == null)
+            while ((done = cache.getAndRemove("FINISH")) == null)
                 Thread.sleep(500);
 
-            ensure(cache.size() == TOTAL, ("Number of records must be " + TOTAL));
+            ensure(cache.size() == TOTAL, ("Number of records must be " + TOTAL + ", got " + cache.size()));
 
             checkResult(done, sum);
 
@@ -41,24 +41,24 @@ public class CacheMainFirst {
         }
     }
 
-    private static void checkResult(Object done, int sum) {
-        ensure(done instanceof Integer, "Invalid result type: " + done.getClass().getName());
+    private static void checkResult(Object done, long sum) {
+        ensure(done instanceof Long, "Invalid result type: " + done.getClass().getName());
 
-        ensure((int)done == sum, "Invalid result: " + done);
+        ensure((long)done == sum, "Invalid result: " + done + ", expected " + sum);
     }
 
     private static int randomNumber() {
         return 1 + (int)(Math.random() * (TOTAL - 1));
     }
 
-    private static int calculateExpectedSum(int cnt) {
-        int res = 0;
+    private static long calculateExpectedSum(int cnt) {
+        long res = 0;
 
         for (int i = 1; i <= cnt; i++)
-            res += cnt * 2;
+            res += i * 2;
 
         for (int i = cnt + 1; i <= TOTAL; i++)
-            res += cnt * 3;
+            res += i * 3;
 
         return res;
     }

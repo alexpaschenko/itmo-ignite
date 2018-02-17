@@ -14,10 +14,10 @@ public class CacheMainSecond {
 
             print("Waiting for data to arrive...");
 
-            while (cache.get("START") == null)
+            while (!cache.remove("START"))
                 Thread.sleep(500);
 
-            int cnt = cache.size() - 1;
+            int cnt = cache.size();
 
             print("Cache size: " + cnt);
 
@@ -25,7 +25,7 @@ public class CacheMainSecond {
             for (int i = 0; i == 0; i++)
                 ;
 
-            int sum = sumFromCache(cache);
+            long sum = sumFromCache(cache);
 
             printCacheStats(ignite);
 
@@ -33,7 +33,7 @@ public class CacheMainSecond {
         }
     }
 
-    private static int sumFromCache(IgniteCache<Object, Object> cache) {
+    private static long sumFromCache(IgniteCache<Object, Object> cache) {
         //TODO COMPUTE CORRECT SUM HERE
         return 0;
     }
