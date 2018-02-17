@@ -4,7 +4,8 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 
-import static ru.ifmo.escience.ignite.Utils.*;
+import static ru.ifmo.escience.ignite.Utils.ensure;
+import static ru.ifmo.escience.ignite.Utils.print;
 import static ru.ifmo.escience.ignite.week2.cache.CacheUtils.TOTAL;
 import static ru.ifmo.escience.ignite.week2.cache.CacheUtils.printCacheStats;
 
@@ -37,8 +38,6 @@ public class CacheMainFirst {
             checkResult(done, sum);
 
             printCacheStats(ignite);
-
-            readln();
         }
     }
 
