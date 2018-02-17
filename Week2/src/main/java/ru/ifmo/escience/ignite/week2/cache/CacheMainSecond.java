@@ -5,6 +5,7 @@ import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 
 import static ru.ifmo.escience.ignite.Utils.print;
+import static ru.ifmo.escience.ignite.Utils.readln;
 import static ru.ifmo.escience.ignite.week2.cache.CacheUtils.printCacheStats;
 
 public class CacheMainSecond {
@@ -27,9 +28,11 @@ public class CacheMainSecond {
 
             int sum = sumFromCache(cache);
 
+            printCacheStats(ignite);
+
             //TODO PUT SUM INTO CACHE WITH KEY 'FINISH' HERE
 
-            printCacheStats(ignite);
+            readln();
         }
     }
 

@@ -4,8 +4,7 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 
-import static ru.ifmo.escience.ignite.Utils.print;
-import static ru.ifmo.escience.ignite.Utils.readln;
+import static ru.ifmo.escience.ignite.Utils.*;
 import static ru.ifmo.escience.ignite.week2.cache.CacheUtils.TOTAL;
 import static ru.ifmo.escience.ignite.week2.cache.CacheUtils.printCacheStats;
 
@@ -33,7 +32,7 @@ public class CacheMainFirst {
             while ((done = cache.get("FINISH")) == null)
                 Thread.sleep(500);
 
-            assert cache.size() == TOTAL : ("Number of records must be " + TOTAL);
+            ensure(cache.size() == TOTAL, ("Number of records must be " + TOTAL));
 
             checkResult(done, sum);
 
@@ -44,9 +43,9 @@ public class CacheMainFirst {
     }
 
     private static void checkResult(Object done, int sum) {
-        assert done instanceof Integer : "Invalid result type: " + done.getClass().getName();
+        ensure(done instanceof Integer, "Invalid result type: " + done.getClass().getName());
 
-        assert (int)done == sum : "Invalid result: " + done;
+        ensure((int)done == sum, "Invalid result: " + done);
     }
 
     private static int randomNumber() {

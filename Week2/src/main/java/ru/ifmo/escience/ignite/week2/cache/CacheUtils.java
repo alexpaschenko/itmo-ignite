@@ -7,7 +7,7 @@ import org.apache.ignite.cache.CachePeekMode;
 import static ru.ifmo.escience.ignite.Utils.print;
 
 public class CacheUtils {
-    public final static int TOTAL = 1000;
+    public final static int TOTAL = 100000;
 
     public static void printCacheStats(Ignite ignite) {
         IgniteCache<Object, Object> cache = ignite.cache("mycache");

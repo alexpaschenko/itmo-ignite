@@ -18,4 +18,9 @@ public class Utils {
             return br.readLine();
         }
     }
+
+    public static void ensure(boolean condition, String msg) {
+        if (!condition)
+            throw new AssertionError(msg);
+    }
 }
