@@ -16,21 +16,6 @@ public class CacheUtils {
 
         print("Primary entries: " + cache.localSize(CachePeekMode.PRIMARY));
 
-        /* SET YOUR RANDOM NUMBER HERE */
-        int cnt = 0;
-
-        /* PUT DATA HERE */
-        for (int i = 0; i < cnt; i++)
-            ;
-
-        int sum = sumFromCache(cache);
-
-        /* PUT SUM INTO CACHE WITH KEY 'FINISH' HERE */
-
-        printCacheStats(ignite);
-    }
-
-    private static int sumFromCache(IgniteCache<Object, Object> cache) {
-        return 0;
+        //TODO PRINT NUMBER OF BACKUP ITEMS HERE
     }
 }
