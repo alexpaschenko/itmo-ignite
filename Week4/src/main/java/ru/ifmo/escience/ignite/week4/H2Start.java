@@ -1,4 +1,4 @@
-package ru.ifmo.escience.ignite.week3;
+package ru.ifmo.escience.ignite.week4;
 
 import org.h2.tools.Console;
 
