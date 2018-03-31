@@ -45,5 +45,16 @@
                 </property>
             </bean>
         </property>
+        <property name="cacheKeyConfiguration">
+            <list>
+                <bean class="org.apache.ignite.cache.CacheKeyConfiguration">
+                    <constructor-arg value="type"></constructor-arg>
+                    <constructor-arg value="userType"></constructor-arg>
+                </bean>
+                <bean class="org.apache.ignite.cache.CacheKeyConfiguration">
+                    <constructor-arg type="java.lang.Class" value="ru.ifmo.escience.ignite.week5.lab.Entry"></constructor-arg>
+                </bean>
+            </list>
+        </property>
     </bean>
 </beans>
