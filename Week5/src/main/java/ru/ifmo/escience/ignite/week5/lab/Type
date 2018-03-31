@@ -1,0 +1,32 @@
+package ru.ifmo.escience.ignite.week5.lab;
+
+import org.apache.ignite.cache.affinity.AffinityKeyMapped;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
+import org.apache.ignite.internal.util.typedef.internal.S;
+
+public class Type {
+    @QuerySqlField(index = true)
+    private final Integer id;
+
+    @AffinityKeyMapped
+    @QuerySqlField(index = true)
+    private final String type;
+
+    public Type(Integer id, String type) {
+        this.id = id;
+        this.type = type;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getText() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return type.toString();
+    }
+}
