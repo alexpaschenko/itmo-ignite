@@ -28,7 +28,9 @@ public class ClientExample {
 
         cfg.setCacheConfiguration(ccfg);
 
-        Ignite node1 = Ignition.start(cfg);
+        Ignite node1 = Ignition.start("Week5/config/default-client.xml");
+
+        node1.getOrCreateCache(ccfg);
 
         try {
             node1.cache("Person").query(new SqlFieldsQuery("CREATE TABLE if not exists \"PUBLIC\".Car(id int, person_id int, " +
