@@ -1,0 +1,160 @@
+package ru.ifmo.escience.ignite.week5.lab;
+
+import org.apache.ignite.Ignite;
+import org.apache.ignite.Ignition;
+import org.apache.ignite.binary.BinaryObject;
+import org.apache.ignite.cache.CacheKeyConfiguration;
+import org.apache.ignite.cache.CacheMode;
+import org.apache.ignite.cache.query.SqlFieldsQuery;
+import org.apache.ignite.configuration.CacheConfiguration;
+
+public class StockRun {
+    private static String ignitionConfig = "Week5/config/lab/default-client.xml";
+    private static String stockExchangeCacheName = "StockExchange";
+    private static String financialInstrumentCacheName = "FinancialInstrument";
+    private static String marketDepthCacheName = "MarketDepth";
+
+    public static void main(String[] args) {
+        Ignite node = createNodeWithCache(ignitionConfig);
+        createTablesBySql(node);
+        setCacheKeyConfiguration(node);
+        insertDataInCaches(node);
+        System.out.println(node.cacheNames());
+    }
+
+    private static Ignite createNodeWithCache(String ignitionConfig) {
+        Ignite node = Ignition.start(ignitionConfig);
+        node.getOrCreateCache(getStockExchangeCacheConfiguration());
+        node.getOrCreateCache(getFinancialInstrumentCacheConfiguration());
+        node.getOrCreateCache(getMarketDepthCacheConfiguration());
+        return node;
+    }
+
+    private static CacheConfiguration<Long, StockExchange> getStockExchangeCacheConfiguration() {
+        CacheConfiguration<Long, StockExchange> stockExchange = new CacheConfiguration<>(stockExchangeCacheName);
+        stockExchange.setIndexedTypes(Integer.class, StockExchange.class);
+        stockExchange.setCacheMode(CacheMode.REPLICATED);
+        return stockExchange;
+    }
+
+    private static CacheConfiguration<Long, FinancialInstrument> getFinancialInstrumentCacheConfiguration() {
+        return new CacheConfiguration<>(financialInstrumentCacheName);
+    }
+
+    private static CacheConfiguration<Long, MarketDepth> getMarketDepthCacheConfiguration() {
+        return new CacheConfiguration<>(marketDepthCacheName);
+    }
+
+    private static void createTablesBySql(Ignite node) {
+        createStockExchangeTable(node);
+        createFinancialInstrumentTable(node);
+        createMarketDepthTable(node);
+    }
+
+    private static void createStockExchangeTable(Ignite node) {
+        String sql = "CREATE TABLE if not exists \"PUBLIC\".stock_exchange" +
+                "(" +
+                "stock_exchange_id long, " +
+                "name varchar, " +
+                "primary_domain varchar, " +
+                "constraint PK_STOCK_EXCHANGE primary key(stock_exchange_id)) " +
+                "WITH \"affinitykey=STOCK_EXCHANGE_ID,cache_name=StockExchange," +
+                "key_type=StockExchangeKey,value_type=StockExchange\"";
+        node.cache(stockExchangeCacheName).query(new SqlFieldsQuery(sql));
+
+        /*
+        *         node1.cache("Person").query(new SqlFieldsQuery("CREATE TABLE if not exists \"PUBLIC\".Car(id int, person_id int, " +
+                "license varchar, primary key(id, person_id)) WITH \"affinitykey=PERSON_ID,cache_name=Car," +
+                "key_type=CarKey,value_type=Car\""));
+        * */
+    }
+
+    private static void createFinancialInstrumentTable(Ignite node) {
+        String sql = "create table if not exists \"PUBLIC\".financial_instrument\n" +
+                "        (\n" +
+                "        financial_instrument_id long,\n" +
+                "        stock_exchange_id    long,\n" +
+                "        name                 varchar,\n" +
+                "        short_name           varchar,\n" +
+                "        date_foundation      date,\n" +
+                "        constraint PK_FINANCIAL_INSTRUMENT primary key clustered (financial_instrument_id)\n" +
+                "        ) " +
+                "WITH \"affinitykey=FINANCIAL_INSTRUMENT_ID,cache_name=FinancialInstrument," +
+                "key_type=FinancialInstrumentKey,value_type=FinancialInstrument\"";
+        node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery(sql));
+    }
+
+    private static void createMarketDepthTable(Ignite node) {
+        String sql = "create table if not exists \"PUBLIC\".market_depth\n" +
+                "        (\n" +
+                "                market_depth_id                   long,\n" +
+                "                stock_exchange_id    long ,\n" +
+                "                financial_instrument_in long ,\n" +
+                "                financial_instrument_out long ,\n" +
+                "                order_date           date  ,\n" +
+                "                order_time           time  ,\n" +
+                "                financial_instrument_in_count decimal   ,\n" +
+                "                financial_instrument_out_count decimal  ,\n" +
+                "                reduced_price_in     decimal   ,\n" +
+                "                reduced_price_out    decimal   ,\n" +
+                "                direction            varchar   ,\n" +
+                "        constraint PK_MARKET_DEPTH primary key clustered (market_depth_id)\n" +
+                "        );" +
+                "WITH \"affinitykey=MARKET_DEPTH_ID,cache_name=MarketDepth," +
+                "key_type=MarketDepthKey,value_type=MarketDepth\"";
+        node.cache(marketDepthCacheName).query(new SqlFieldsQuery(sql));
+    }
+
+    private static void setCacheKeyConfiguration(Ignite node) {
+        CacheKeyConfiguration marketDepthConf = new CacheKeyConfiguration(MarketDepth.class);
+        //CacheKeyConfiguration bankAccountConfiguration = new CacheKeyConfiguration("CcyAccount", "id");
+
+        node.configuration().setCacheKeyConfiguration(marketDepthConf);
+    }
+
+    private static void insertDataInCaches(Ignite node) {
+        insertStockExchanges(node);
+        insertFinancialInstruments(node);
+        insertMarketDepths(node);
+    }
+
+    private static void insertStockExchanges(Ignite node) {
+        node.binary().builder("StockExchangeKey")
+                .setField("STOCK_EXCHANGE_ID", 1)
+                .setField("NAME", "exmo")
+                .setField("PRIMARY_DOMAIN ", "exmo.me")
+                .build();
+
+        node.binary().builder("StockExchangeKey")
+                .setField("STOCK_EXCHANGE_ID", 2)
+                .setField("NAME", "Bitfenix")
+                .setField("PRIMARY_DOMAIN ", "bitfenix.com")
+                .build();
+
+        node.binary().builder("StockExchangeKey")
+                .setField("STOCK_EXCHANGE_ID", 3)
+                .setField("NAME", "Bitstamp")
+                .setField("PRIMARY_DOMAIN ", "bitstamp.com")
+                .build();
+
+        /*node.cache(stockExchangeCacheName).put(1, new StockExchange(1, "exmo", "exmo.me"));
+        node.cache(stockExchangeCacheName).put(2, new StockExchange(2, "Bitfenix", "bitfenix.com"));
+        node.cache(stockExchangeCacheName).put(3, new StockExchange(3, "Bitstamp", "bitstamp.com"));*/
+    }
+
+    private static void insertFinancialInstruments(Ignite node) {
+        String sql = "insert into \"PUBLIC\".financial_instrument(financial_instrument_id, name, short_name)" +
+                " values (1, 'USD', 'USD')," +
+                " (2, 'Bitcoin', 'BTC'), " +
+                " (3, 'Ethereum', 'ETH')";
+        node.cache("Bank").query(new SqlFieldsQuery(sql));
+    }
+
+    private static void insertMarketDepths(Ignite node) {
+       /* node.cache(marketDepthCacheName).put(1, new MarketDepth(1, 1, 1, 2, ''));
+        node.cache(stockExchangeCacheName).put(1, new StockExchange(1, "exmo", "exmo.me"));
+        node.cache(stockExchangeCacheName).put(1, new StockExchange(1, "exmo", "exmo.me"));
+        node.cache(stockExchangeCacheName).put(1, new StockExchange(1, "exmo", "exmo.me"));*/
+        //BinaryObject ck = node.binary().builder("CarKey").setField("ID", 1).setField("PERSON_ID", 100000).build();
+    }
+}
