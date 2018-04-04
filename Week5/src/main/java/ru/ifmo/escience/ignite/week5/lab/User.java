@@ -5,14 +5,14 @@ import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import org.apache.ignite.internal.util.typedef.internal.S;
 
 public class User {
-    @QuerySqlField(index = true)
+    @QuerySqlField
     private final String name;
 
     @QuerySqlField(index = true)
     private final String login;
 
     @AffinityKeyMapped
-    @QuerySqlField(index = true)
+    @QuerySqlField
     private final String userType;
 
 

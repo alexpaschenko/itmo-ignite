@@ -8,13 +8,17 @@ public class Entry {
     @QuerySqlField(index = true)
     private final Integer id;
 
-    @QuerySqlField(index = true)
-    @AffinityKeyMapped
+    @QuerySqlField
     private final String text;
 
-    public Entry(Integer id, String text) {
+    @QuerySqlField
+    @AffinityKeyMapped
+    private final String login;
+
+    public Entry(Integer id, String text, String login) {
         this.id = id;
         this.text = text;
+        this.login = login;
     }
 
     public Integer getId() {
@@ -25,8 +29,13 @@ public class Entry {
         return text;
     }
 
+    public String getLogin() {
+        return login;
+    }
+
     @Override
     public String toString() {
         return S.toString(Entry.class, this);
     }
+
 }
