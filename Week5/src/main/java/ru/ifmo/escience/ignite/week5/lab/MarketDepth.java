@@ -19,16 +19,17 @@ public class MarketDepth {
     @QuerySqlField
     private final Time orderTime;
     @QuerySqlField
-    private final float financialInstrumentInCount;
+    private final double financialInstrumentInCount;
     @QuerySqlField
-    private final float financialInstrumentOutCount;
+    private final double financialInstrumentOutCount;
     @QuerySqlField
-    private final float reducedPriceIn;
+    private final double reducedPriceIn;
     @QuerySqlField
-    private final float reducedPriceOut;
+    private final double reducedPriceOut;
+    @QuerySqlField
+    private final String direction;
 
-
-    public MarketDepth(long marketDepthId, long stockExchangeId, long financialInstrumentIn, long financialInstrumentOut, Date orderDate, Time orderTime, float financialInstrumentInCount, float financialInstrumentOutCount, float reducedPriceIn, float reducedPriceOut) {
+    public MarketDepth(long marketDepthId, long stockExchangeId, long financialInstrumentIn, long financialInstrumentOut, Date orderDate, Time orderTime, double financialInstrumentInCount, double financialInstrumentOutCount, double reducedPriceIn, double reducedPriceOut, String direction) {
         this.marketDepthId = marketDepthId;
         this.stockExchangeId = stockExchangeId;
         this.financialInstrumentIn = financialInstrumentIn;
@@ -39,6 +40,7 @@ public class MarketDepth {
         this.financialInstrumentOutCount = financialInstrumentOutCount;
         this.reducedPriceIn = reducedPriceIn;
         this.reducedPriceOut = reducedPriceOut;
+        this.direction = direction;
     }
 
     public long getMarketDepthId() {
@@ -65,20 +67,24 @@ public class MarketDepth {
         return orderTime;
     }
 
-    public float getFinancialInstrumentInCount() {
+    public double getFinancialInstrumentInCount() {
         return financialInstrumentInCount;
     }
 
-    public float getFinancialInstrumentOutCount() {
+    public double getFinancialInstrumentOutCount() {
         return financialInstrumentOutCount;
     }
 
-    public float getReducedPriceIn() {
+    public double getReducedPriceIn() {
         return reducedPriceIn;
     }
 
-    public float getReducedPriceOut() {
+    public double getReducedPriceOut() {
         return reducedPriceOut;
+    }
+
+    public String getDirection() {
+        return direction;
     }
 }
 /*
