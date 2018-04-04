@@ -6,27 +6,27 @@ import java.sql.Time;
 import java.util.Date;
 
 public class MarketDepth {
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final long marketDepthId;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final long stockExchangeId;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final long financialInstrumentIn;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final long financialInstrumentOut;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final Date orderDate;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final Time orderTime;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final double financialInstrumentInCount;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final double financialInstrumentOutCount;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final double reducedPriceIn;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final double reducedPriceOut;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final String direction;
 
     public MarketDepth(long marketDepthId, long stockExchangeId, long financialInstrumentIn, long financialInstrumentOut, Date orderDate, Time orderTime, double financialInstrumentInCount, double financialInstrumentOutCount, double reducedPriceIn, double reducedPriceOut, String direction) {

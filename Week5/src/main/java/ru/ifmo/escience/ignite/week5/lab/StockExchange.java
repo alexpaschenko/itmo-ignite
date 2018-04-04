@@ -5,9 +5,9 @@ import org.apache.ignite.cache.query.annotations.QuerySqlField;
 public class StockExchange {
     @QuerySqlField(index = true)
     private final long stockExchangeId;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final String name;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final String primaryDomain;
 
     public StockExchange(long stockExchangeId, String name, String primaryDomain) {

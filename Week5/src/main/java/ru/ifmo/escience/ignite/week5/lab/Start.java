@@ -33,6 +33,7 @@ public class Start {
         createTablesBySql();
         setCacheKeyConfiguration();
         insertDataInCaches();
+        showAllRecords();
         System.out.println(node.cacheNames());
     }
 
@@ -70,7 +71,7 @@ public class Start {
                 "name varchar, " +
                 "primary_domain varchar, " +
                 "primary key(stock_exchange_id)) " +
-                "WITH \"affinitykey=STOCK_EXCHANGE_ID,cache_name=StockExchange," +
+                "WITH \"affinitykey=STOCK_EXCHANGE_ID,cache_name=stock_exchange," +
                 "key_type=StockExchangeKey,value_type=stock_exchange\"";
         node.cache(stockExchangeCacheName).query(new SqlFieldsQuery(sql)).getAll();
     }
@@ -85,7 +86,7 @@ public class Start {
                 "        date_foundation      date,\n" +
                 "        primary key (financial_instrument_id)\n" +
                 "        ) " +
-                "WITH \"affinitykey=FINANCIAL_INSTRUMENT_ID,cache_name=FinancialInstrument," +
+                "WITH \"affinitykey=FINANCIAL_INSTRUMENT_ID,cache_name=financial_instrument," +
                 "key_type=FinancialInstrumentKey,value_type=financial_instrument\"";
         node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery(sql)).getAll();
     }
@@ -106,7 +107,7 @@ public class Start {
                 "                direction            varchar   ,\n" +
                 "        primary key (market_depth_id)\n" +
                 "        )" +
-                "WITH \"affinitykey=MARKET_DEPTH_ID,cache_name=MarketDepth," +
+                "WITH \"affinitykey=MARKET_DEPTH_ID,cache_name=market_depth," +
                 "key_type=MarketDepthKey,value_type=market_depth\"";
         node.cache(marketDepthCacheName).query(new SqlFieldsQuery(sql)).getAll();
     }
@@ -118,7 +119,7 @@ public class Start {
 
     private static void insertDataInCaches() {
         insertStockExchanges();
-        //insertFinancialInstruments();
+        insertFinancialInstruments();
         insertMarketDepths();
     }
 
@@ -145,7 +146,10 @@ public class Start {
     private static void insertFinancialInstruments() {
         node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery(
                 "INSERT INTO \"PUBLIC\".financial_instrument(financial_instrument_id, name, short_name, date_foundation) VALUES(?, ?, ?, ?)").
-                setArgs(2, "Bitcoin", "BTC",  new Date()));
+                setArgs(1, "USD", "USD", new Date()));
+        node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery(
+                "INSERT INTO \"PUBLIC\".financial_instrument(financial_instrument_id, name, short_name, date_foundation) VALUES(?, ?, ?, ?)").
+                setArgs(2, "Bitcoin", "BTC", new Date()));
     }
 
     private static void insertMarketDepths() {
@@ -153,9 +157,44 @@ public class Start {
         node.cache(marketDepthCacheName).put(1, a);
     }
 
+    private static void showAllRecords() {
+        System.out.println(node.cache(stockExchangeCacheName).query(new SqlFieldsQuery("SELECT * FROM \"PUBLIC\".stock_exchange")).getAll());
+        System.out.println(node.cache(marketDepthCacheName).query(new SqlFieldsQuery("SELECT * FROM \"PUBLIC\".market_depth")).getAll());
+        System.out.println(node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery("SELECT * FROM \"PUBLIC\".financial_instrument")).getAll());
+    }
+
     private static void dropAllTables() {
         node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery("DROP TABLE IF EXISTS \"PUBLIC\".financial_instrument"));
         node.cache(stockExchangeCacheName).query(new SqlFieldsQuery("DROP TABLE IF EXISTS \"PUBLIC\".stock_exchange"));
         node.cache(marketDepthCacheName).query(new SqlFieldsQuery("DROP TABLE IF EXISTS \"PUBLIC\".market_depth"));
+    }
+
+    private static void run2() {
+        node.getOrCreateCache(financialInstrumentCacheName);
+
+        String sql = "create table if not exists \"PUBLIC\".financial_instrument\n" +
+                "        (\n" +
+                "        financial_instrument_id long,\n" +
+                "        stock_exchange_id    long,\n" +
+                "        name                 varchar,\n" +
+                "        short_name           varchar,\n" +
+                "        date_foundation      date,\n" +
+                "        primary key (financial_instrument_id)\n" +
+                "        ) " +
+                "WITH \"affinitykey=FINANCIAL_INSTRUMENT_ID,cache_name=financial_instrument," +
+                "key_type=FinancialInstrumentKey,value_type=FinancialInstrument\"";
+        node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery(sql)).getAll();
+
+        node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery(
+                "INSERT INTO \"PUBLIC\".financial_instrument(financial_instrument_id, name, short_name, date_foundation) VALUES(?, ?, ?, ?)").
+                setArgs(2, "Bitcoin", "BTC", new Date()));
+
+        System.out.println(node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery(
+                "SELECT * FROM \"PUBLIC\".financial_instrument")).getAll());
+
+        node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery(
+                "DROP TABLE IF EXISTS \"PUBLIC\".financial_instrument"));
+
+        System.out.println(node.cacheNames());
     }
 }

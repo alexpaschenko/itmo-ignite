@@ -32,15 +32,15 @@ create table financial_instrument
 * */
 public class FinancialInstrument {
 
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final long financialInstrumentId;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final long stockExchangeId;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final String name;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final String shortName;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final Date dateFoundation;
 
     public FinancialInstrument(long financialInstrumentId, long stockExchangeId, String name, String shortName, Date dateFoundation) {
