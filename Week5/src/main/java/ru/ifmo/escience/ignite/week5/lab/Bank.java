@@ -4,28 +4,36 @@ import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
 public class Bank {
     @QuerySqlField(index = true)
-    private final long bankClientId;
+    private final int id;
     @QuerySqlField
-    private final String bankOffice;
+    private final String name;
+    @QuerySqlField
+    private final int rating;
 
-    public Bank(long bankClientId, String bankOffice) {
-        this.bankClientId = bankClientId;
-        this.bankOffice = bankOffice;
+    public Bank(int id, String name, int rating) {
+        this.id = id;
+        this.name = name;
+        this.rating = rating;
     }
 
-    public long getBankClientId() {
-        return bankClientId;
+    public int getId() {
+        return id;
     }
 
-    public String getBankOffice() {
-        return bankOffice;
+    public String getName() {
+        return name;
+    }
+
+    public int getRating() {
+        return rating;
     }
 
     @Override
     public String toString() {
         return "Bank{" +
-                "bankClientId=" + bankClientId +
-                ", bankOffice='" + bankOffice + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", rating=" + rating +
                 '}';
     }
 }
