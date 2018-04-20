@@ -1,6 +1,7 @@
 package ru.ifmo.escience.ignite.week5.lab;
 
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
+import org.apache.ignite.cache.affinity.AffinityKey;
 
 public class StockExchange {
     @QuerySqlField(index = true)
@@ -9,6 +10,8 @@ public class StockExchange {
     private final String name;
     @QuerySqlField(index = true)
     private final String primaryDomain;
+
+    private transient AffinityKey<Long> key;
 
     public StockExchange(long stockExchangeId, String name, String primaryDomain) {
         this.stockExchangeId = stockExchangeId;
@@ -26,5 +29,22 @@ public class StockExchange {
 
     public String getPrimaryDomain() {
         return primaryDomain;
+    }
+
+    public AffinityKey<Long> getKey() {
+        if (key == null)
+            key = new AffinityKey<>(stockExchangeId);
+
+        return key;
+    }
+
+    @Override
+    public String toString() {
+        return "StockExchange{" +
+                "stockExchangeId=" + stockExchangeId +
+                ", name='" + name + '\'' +
+                ", primaryDomain='" + primaryDomain + '\'' +
+                ", key=" + key +
+                '}';
     }
 }

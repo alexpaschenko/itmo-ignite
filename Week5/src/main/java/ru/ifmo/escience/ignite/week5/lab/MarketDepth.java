@@ -1,5 +1,6 @@
 package ru.ifmo.escience.ignite.week5.lab;
 
+import org.apache.ignite.cache.affinity.AffinityKey;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
 import java.sql.Time;
@@ -85,6 +86,33 @@ public class MarketDepth {
 
     public String getDirection() {
         return direction;
+    }
+
+    private transient AffinityKey<Long> key;
+
+    public AffinityKey<Long> getKey() {
+        if (key == null)
+            key = new AffinityKey<>(marketDepthId);
+
+        return key;
+    }
+
+    @Override
+    public String toString() {
+        return "MarketDepth{" +
+                "marketDepthId=" + marketDepthId +
+                ", stockExchangeId=" + stockExchangeId +
+                ", financialInstrumentIn=" + financialInstrumentIn +
+                ", financialInstrumentOut=" + financialInstrumentOut +
+                ", orderDate=" + orderDate +
+                ", orderTime=" + orderTime +
+                ", financialInstrumentInCount=" + financialInstrumentInCount +
+                ", financialInstrumentOutCount=" + financialInstrumentOutCount +
+                ", reducedPriceIn=" + reducedPriceIn +
+                ", reducedPriceOut=" + reducedPriceOut +
+                ", direction='" + direction + '\'' +
+                ", key=" + key +
+                '}';
     }
 }
 /*
