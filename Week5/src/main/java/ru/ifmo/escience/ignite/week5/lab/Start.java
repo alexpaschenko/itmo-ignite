@@ -1,5 +1,7 @@
 package ru.ifmo.escience.ignite.week5.lab;
 
+import java.util.List;
+
 import org.apache.ignite.Ignite;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheMode;
@@ -36,6 +38,7 @@ public class Start {
         createStockExchange();
         createFinancialInstrument();
         createMarketDepth();
+        viewJoinMarketDepthAndFinancialInstument();
         System.out.println(node.cacheNames());
     }
 
@@ -70,7 +73,6 @@ public class Start {
     }
 
     private static void createFinancialInstrument() {
-        node.getOrCreateCache(financialInstrumentCacheName);
         createFinancialInstrumentTable();
         insertFinancialInstruments();
         viewFinancialInstruments();
@@ -78,7 +80,7 @@ public class Start {
     }
 
     private static void createFinancialInstrumentTable() {
-        String sql = "create table if not exists \"PUBLIC\".financial_instrument\n" +
+        String sql = "create table if not exists \"PUBLIC\"." + financialInstrumentCacheName + "\n" +
                 "        (\n" +
                 "        financial_instrument_id long,\n" +
                 "        stock_exchange_id    long,\n" +
@@ -87,40 +89,39 @@ public class Start {
                 "        date_foundation      date,\n" +
                 "        primary key (financial_instrument_id)\n" +
                 "        ) " +
-                "WITH \"affinitykey=FINANCIAL_INSTRUMENT_ID,cache_name=financial_instrument," +
+                "WITH \"affinitykey=FINANCIAL_INSTRUMENT_ID,cache_name=" + financialInstrumentCacheName + "," +
                 "key_type=Long,value_type=financial_instrument\"";
-        node.cache(financialInstrumentCacheName)
+        node.cache(stockExchangeCacheName)
                 .query(new SqlFieldsQuery(sql))
                 .getAll();
     }
 
     private static void insertFinancialInstruments() {
         System.out.println(node.cacheNames());
-        node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery(
-                "INSERT INTO \"PUBLIC\".financial_instrument(financial_instrument_id, stock_exchange_id, name, short_name) " +
+        node.cache(stockExchangeCacheName).query(new SqlFieldsQuery(
+                "INSERT INTO \"PUBLIC\"." + financialInstrumentCacheName + "(financial_instrument_id, stock_exchange_id, name, short_name) " +
                         "VALUES(2, 1, 'Bitcoin', 'BTC')"));
 
-        String sqlInsert = "INSERT INTO \"PUBLIC\".financial_instrument(financial_instrument_id, stock_exchange_id, name, short_name, date_foundation) VALUES(?, ?, ?, ?, ?)";
+        String sqlInsert = "INSERT INTO \"PUBLIC\"." + financialInstrumentCacheName + "(financial_instrument_id, stock_exchange_id, name, short_name, date_foundation) VALUES(?, ?, ?, ?, ?)";
         SqlFieldsQuery a = new SqlFieldsQuery(sqlInsert).setArgs(1, 1, "USD", "USD", new Date());
-        node.cache(financialInstrumentCacheName)
+        node.cache(stockExchangeCacheName)
                 .query(a);
     }
 
     private static void viewFinancialInstruments() {
-        System.out.println(node.cache(financialInstrumentCacheName)
-                .query(new SqlFieldsQuery("SELECT * FROM \"PUBLIC\".financial_instrument"))
+        System.out.println(node.cache(stockExchangeCacheName)
+                .query(new SqlFieldsQuery("SELECT * FROM \"PUBLIC\"." + financialInstrumentCacheName))
                 .getAll());
     }
 
     private static void createMarketDepth() {
-        node.getOrCreateCache(marketDepthCacheName);
         createMarketDepthTable();
         insertMarketDepths();
         viewMarketDepths();
     }
 
     private static void createMarketDepthTable() {
-        String sql = "create table if not exists \"PUBLIC\".market_depth\n" +
+        String sql = "create table if not exists \"PUBLIC\"." + marketDepthCacheName + "\n" +
                 "        (\n" +
                 "                market_depth_id                   long,\n" +
                 "                stock_exchange_id    long ,\n" +
@@ -135,9 +136,9 @@ public class Start {
                 "                direction            varchar   ,\n" +
                 "        primary key (market_depth_id)\n" +
                 "        )" +
-                "WITH \"affinitykey=MARKET_DEPTH_ID,cache_name=market_depth," +
+                "WITH \"affinitykey=MARKET_DEPTH_ID,cache_name=" + marketDepthCacheName + "," +
                 "key_type=MarketDepthKey,value_type=MarketDepth\"";
-        node.cache(marketDepthCacheName).query(new SqlFieldsQuery(sql)).getAll();
+        node.cache(stockExchangeCacheName).query(new SqlFieldsQuery(sql)).getAll();
     }
 
     private static void insertMarketDepths() {
@@ -151,8 +152,20 @@ public class Start {
         Object b = node.cache(marketDepthCacheName).get(a.getKey());
         System.out.println(b.toString());
         System.out.println(node.cache(marketDepthCacheName)
-                .query(new SqlFieldsQuery("SELECT * FROM \"PUBLIC\".market_depth"))
+                .query(new SqlFieldsQuery("SELECT * FROM \"PUBLIC\"." + marketDepthCacheName))
                 .getAll());
+    }
+
+    private static void viewJoinMarketDepthAndFinancialInstument() {
+        String marketDepthTable = "\"PUBLIC\"." + marketDepthCacheName;
+        String financialInstrumentsTable = "\"PUBLIC\"." + financialInstrumentCacheName;
+        String sql = "SELECT md.*, instrument.*  FROM " + marketDepthTable + " md INNER JOIN " + financialInstrumentsTable + " instrument on md.financial_instrument_in = instrument.financial_instrument_id";
+        List<List<?>> res = node.cache(stockExchangeCacheName).query(new SqlFieldsQuery(sql)).getAll();
+        System.out.println(node.cache(stockExchangeCacheName).query(new SqlFieldsQuery(sql)).getAll());
+        System.out.println("Query results join:");
+
+        for (Object next : res)
+            System.out.println(">>>    " + next);
     }
 
     private static void dropAllAndClose() {
@@ -171,8 +184,8 @@ public class Start {
     }
 
     private static void dropAllTables() {
-        node.cache(financialInstrumentCacheName).query(new SqlFieldsQuery("DROP TABLE IF EXISTS \"PUBLIC\".financial_instrument"));
-        node.cache(stockExchangeCacheName).query(new SqlFieldsQuery("DROP TABLE IF EXISTS \"PUBLIC\".stock_exchange"));
-        node.cache(marketDepthCacheName).query(new SqlFieldsQuery("DROP TABLE IF EXISTS \"PUBLIC\".market_depth"));
+        node.cache(stockExchangeCacheName).query(new SqlFieldsQuery("DROP TABLE IF EXISTS \"PUBLIC\"." + financialInstrumentCacheName));
+        node.cache(stockExchangeCacheName).query(new SqlFieldsQuery("DROP TABLE IF EXISTS \"PUBLIC\"." + stockExchangeCacheName));
+        node.cache(stockExchangeCacheName).query(new SqlFieldsQuery("DROP TABLE IF EXISTS \"PUBLIC\"." + marketDepthCacheName));
     }
 }
