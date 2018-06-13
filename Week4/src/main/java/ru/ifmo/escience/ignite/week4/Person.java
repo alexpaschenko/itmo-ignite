@@ -11,12 +11,19 @@ public class Person {
     private final String surname;
 
     @QuerySqlField(index = true)
-    private final int salary;
+    private final String login;
 
-    public Person(String name, String surname, int salary) {
+    @QuerySqlField(index = true)
+    private final String instagramLogin;
+
+
+
+
+    public Person(String name, String surname, String login, String instagramLogin) {
         this.name = name;
         this.surname = surname;
-        this.salary = salary;
+        this.login = login;
+        this.instagramLogin = instagramLogin;
     }
 
     public String getName() {
@@ -27,8 +34,12 @@ public class Person {
         return surname;
     }
 
-    public int getSalary() {
-        return salary;
+    public String getLogin() {
+        return login;
+    }
+
+    public String getInstagramLogin() {
+        return instagramLogin;
     }
 
     @Override
