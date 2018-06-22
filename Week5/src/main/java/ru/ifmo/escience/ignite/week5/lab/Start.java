@@ -89,8 +89,8 @@ public class Start {
                 "        date_foundation      date,\n" +
                 "        primary key (financial_instrument_id)\n" +
                 "        ) " +
-                "WITH \"affinitykey=FINANCIAL_INSTRUMENT_ID,cache_name=" + financialInstrumentCacheName + "," +
-                "key_type=Long,value_type=financial_instrument\"";
+                "WITH \"cache_name=" + financialInstrumentCacheName + "," +
+                "value_type=financial_instrument\"";
         node.cache(stockExchangeCacheName)
                 .query(new SqlFieldsQuery(sql))
                 .getAll();
@@ -129,28 +129,54 @@ public class Start {
                 "                financial_instrument_out long ,\n" +
                 "                order_date           DATE  ,\n" +
                 "                order_time           TIME  ,\n" +
-                "                financial_instrument_in_count decimal   ,\n" +
-                "                financial_instrument_out_count decimal  ,\n" +
+                "                financial_instrument_in_count decimal,\n" +
+                "                financial_instrument_out_count decimal,\n" +
                 "                reduced_price_in     decimal   ,\n" +
                 "                reduced_price_out    decimal   ,\n" +
-                "                direction            varchar   ,\n" +
-                "        primary key (market_depth_id)\n" +
-                "        )" +
-                "WITH \"affinitykey=MARKET_DEPTH_ID,cache_name=" + marketDepthCacheName + "," +
+                "                direction            varchar,\n" +
+                "        primary key (market_depth_id, stock_exchange_id, financial_instrument_in, financial_instrument_out," +
+                "order_date, order_time, financial_instrument_in_count, financial_instrument_out_count, direction)\n" +
+                ")" +
+                "WITH \"affinitykey=financial_instrument_in,cache_name=" + marketDepthCacheName + "," +
                 "key_type=MarketDepthKey,value_type=MarketDepth\"";
         node.cache(stockExchangeCacheName).query(new SqlFieldsQuery(sql)).getAll();
     }
 
     private static void insertMarketDepths() {
-        MarketDepth a = new MarketDepth(1, 1, 1, 2, new Date(), new Time(1, 1, 1), 1, 1.25, 1, 1.25, "sell");
-        node.cache(marketDepthCacheName).put(a.getKey(), a);
+        //marketDepthId=1, stockExchangeId=1, financialInstrumentIn=1, financialInstrumentOut=2, orderDate=Fri Jun 22 20:40:40 MSK 2018, orderTime=01:01:01, financialInstrumentInCount=1.0, financialInstrumentOutCount=1.25, reducedPriceIn=1.0, reducedPriceOut=1.25, direction='sell'
+        node.cache(marketDepthCacheName).query(new SqlFieldsQuery(
+                "INSERT INTO \"PUBLIC\"." + marketDepthCacheName + "" +
+                        "(market_depth_id, stock_exchange_id, financial_instrument_in, " +
+                        "financial_instrument_out, order_date, order_time," +
+                        "financial_instrument_in_count, financial_instrument_out_count, direction," +
+                        "reduced_price_in, reduced_price_out) " +
+                        "VALUES(1, 1, 1, " +
+                        "1, '2018-01-01', '20:40:50'," +
+                        "1, 2, 'sell'," +
+                        "1,1)"));
+        node.cache(marketDepthCacheName).query(new SqlFieldsQuery(
+                "INSERT INTO \"PUBLIC\"." + marketDepthCacheName + "" +
+                        "(market_depth_id, stock_exchange_id, financial_instrument_in, " +
+                        "financial_instrument_out, order_date, order_time," +
+                        "financial_instrument_in_count, financial_instrument_out_count, direction," +
+                        "reduced_price_in, reduced_price_out) " +
+                        "VALUES(2, 1, 2, " +
+                        "1, '2018-01-01', '20:40:50'," +
+                        "1, 23, 'sell'," +
+                        "1,1)"));
+        node.cache(marketDepthCacheName).query(new SqlFieldsQuery(
+                "INSERT INTO \"PUBLIC\"." + marketDepthCacheName + "" +
+                        "(market_depth_id, stock_exchange_id, financial_instrument_in, " +
+                        "financial_instrument_out, order_date, order_time," +
+                        "financial_instrument_in_count, financial_instrument_out_count, direction," +
+                        "reduced_price_in, reduced_price_out) " +
+                        "VALUES(3, 1, 2, " +
+                        "1, '2018-01-01', '20:40:50'," +
+                        "1, 28, 'sell'," +
+                        "1,1)"));
     }
 
     private static void viewMarketDepths() {
-        MarketDepth a = new MarketDepth(1, 1, 1, 2, new Date(), new Time(1, 1, 1), 1, 1.25, 1, 1.25, "sell");
-
-        Object b = node.cache(marketDepthCacheName).get(a.getKey());
-        System.out.println(b.toString());
         System.out.println(node.cache(marketDepthCacheName)
                 .query(new SqlFieldsQuery("SELECT * FROM \"PUBLIC\"." + marketDepthCacheName))
                 .getAll());

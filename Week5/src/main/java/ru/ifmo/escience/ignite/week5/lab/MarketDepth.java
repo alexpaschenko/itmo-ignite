@@ -88,13 +88,8 @@ public class MarketDepth {
         return direction;
     }
 
-    private transient AffinityKey<Long> key;
-
-    public AffinityKey<Long> getKey() {
-        if (key == null)
-            key = new AffinityKey<>(marketDepthId);
-
-        return key;
+    public Long getKey() {
+        return marketDepthId;
     }
 
     @Override
@@ -111,7 +106,6 @@ public class MarketDepth {
                 ", reducedPriceIn=" + reducedPriceIn +
                 ", reducedPriceOut=" + reducedPriceOut +
                 ", direction='" + direction + '\'' +
-                ", key=" + key +
                 '}';
     }
 }

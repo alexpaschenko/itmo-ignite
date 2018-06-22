@@ -31,11 +31,8 @@ public class StockExchange {
         return primaryDomain;
     }
 
-    public AffinityKey<Long> getKey() {
-        if (key == null)
-            key = new AffinityKey<>(stockExchangeId);
-
-        return key;
+    public Long getKey() {
+        return stockExchangeId;
     }
 
     @Override
