@@ -134,8 +134,7 @@ public class Start {
                 "                reduced_price_in     decimal   ,\n" +
                 "                reduced_price_out    decimal   ,\n" +
                 "                direction            varchar,\n" +
-                "        primary key (market_depth_id, stock_exchange_id, financial_instrument_in, financial_instrument_out," +
-                "order_date, order_time, financial_instrument_in_count, financial_instrument_out_count, direction)\n" +
+                "        primary key (market_depth_id, financial_instrument_in)\n" +
                 ")" +
                 "WITH \"affinitykey=financial_instrument_in,cache_name=" + marketDepthCacheName + "," +
                 "key_type=MarketDepthKey,value_type=MarketDepth\"";
