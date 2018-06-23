@@ -1,6 +1,7 @@
 package ru.ifmo.escience.ignite.week5.lab;
 
 import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheKeyConfiguration;
 import org.apache.ignite.cache.CacheMode;
@@ -22,25 +23,24 @@ public class BankRunner {
 
         CacheConfiguration<Integer, BankAccount> bankAccountConfig = new CacheConfiguration<>("BankAccount");
         //doing thing the hard way
-        LinkedHashMap<String, String> bankAccountFields = new LinkedHashMap<>();
-        bankAccountFields.put("id", Integer.class.getName());
-        bankAccountFields.put("bankId", Integer.class.getName());
-        bankAccountFields.put("ccy", String.class.getName());
-        bankAccountFields.put("amount", Double.class.getName());
         bankAccountConfig.setQueryEntities(singleton(
                 new QueryEntity()
-                        .setKeyType(Integer.class.getName())
+                        .setKeyType(BankAccountKey.class.getName())
                         .setValueType(BankAccount.class.getName())
-                        .setFields(bankAccountFields)
-                        .setIndexes(asList(new QueryIndex("id"), new QueryIndex("bankId"), new QueryIndex("ccy")))))
+                        .addQueryField("bankAccountKey", BankAccountKey.class.getName(), "bankAccountKey")
+                        .addQueryField("bankAccountKey.id" , Integer.class.getName(), "id")
+                        .addQueryField("bankAccountKey.bankId", Integer.class.getName(), "bankId")
+                        .addQueryField("ccy", String.class.getName(), "ccy")
+                        .addQueryField("amount", Double.class.getName(), "amount")
+                        .setIndexes(asList(new QueryIndex("bankAccountKey"), new QueryIndex("ccy")))))
                 .setCacheMode(CacheMode.PARTITIONED)
-                .setKeyConfiguration(new CacheKeyConfiguration(BankAccount.class.getName(), "bankId"));
-        CacheConfiguration<Integer, Client> clientConfig = new CacheConfiguration<>("Client");
-        clientConfig.setIndexedTypes(Integer.class, Client.class);
+                .setKeyConfiguration(new CacheKeyConfiguration(BankAccountKey.class.getName(), "bankId"));
+        CacheConfiguration<ClientKey, Client> clientConfig = new CacheConfiguration<>("Client");
+        clientConfig.setIndexedTypes(ClientKey.class, Client.class);
 
         Ignite node = Ignition.start("Week5/config/default-client.xml");
         try {
-            node.createCaches(Arrays.<CacheConfiguration>asList(bankConfig, bankAccountConfig, clientConfig));
+            node.createCaches(asList(bankConfig, bankAccountConfig, clientConfig));
             node.cache("Bank").query(new SqlFieldsQuery("CREATE TABLE if not exists \"PUBLIC\".EuroRate(ccy varchar, rate double, " +
                     "primary key(ccy)) WITH \"template=REPLICATED,cache_name=EuroRate,value_type=EuroRate\""));
 
@@ -51,7 +51,10 @@ public class BankRunner {
 
             System.out.println(node.cache("BankAccount").get(3));
             System.out.println(node.cache("Bank").query(new SqlFieldsQuery("SELECT * FROM \"PUBLIC\".EuroRate")).getAll());
-
+            System.out.println(node.cache("Bank").query(new SqlFieldsQuery("SELECT DISTINCT BankAccount.ID from " +
+                    "\"BankAccount\".BANKACCOUNT BankAccount " +
+                    "INNER JOIN Bank ON Bank.ID = BankAccount.BANKID " +
+                    "WHERE Bank.NAME = 'TinkoffBank'")).getAll());
             System.out.println(node.cache("Bank").query(new SqlFieldsQuery("SELECT DISTINCT FULLNAME from " +
                     "\"Client\".CLIENT Client " +
                     "INNER JOIN \"BankAccount\".BANKACCOUNT BankAccount ON BankAccount.ID = Client.BANKACCOUNTID " +
@@ -81,23 +84,23 @@ public class BankRunner {
         return banks;
     }
 
-    private static Map<Integer, BankAccount> createAccounts() {
-        HashMap<Integer, BankAccount> accounts = new HashMap<>();
-        accounts.put(1, new BankAccount(1, 1, "RUB", 72_000));
-        accounts.put(2, new BankAccount(2, 1, "EUR", 5_000));
-        accounts.put(3, new BankAccount(3, 2, "RUB", 104_000));
-        accounts.put(4, new BankAccount(4, 3, "RUB", 53_000));
-        accounts.put(5, new BankAccount(5, 1, "USD", 8_500));
+    private static Map<BankAccountKey, BankAccount> createAccounts() {
+        HashMap<BankAccountKey, BankAccount> accounts = new HashMap<>();
+        accounts.put(new BankAccountKey(1, 1), new BankAccount(new BankAccountKey(1, 1), "RUB", 72_000));
+        accounts.put(new BankAccountKey(2, 1), new BankAccount(new BankAccountKey(2, 1), "EUR", 5_000));
+        accounts.put(new BankAccountKey(3, 2), new BankAccount(new BankAccountKey(3, 2), "RUB", 104_000));
+        accounts.put(new BankAccountKey(4, 3), new BankAccount(new BankAccountKey(4, 3), "RUB", 53_000));
+        accounts.put(new BankAccountKey(5, 1), new BankAccount(new BankAccountKey(5, 1), "USD", 8_500));
         return accounts;
     }
 
-    private static Map<Integer, Client> createClients() {
-        HashMap<Integer, Client> clients = new HashMap<>();
-        clients.put(1, new Client(1, "John Smith", 5));
-        clients.put(2, new Client(2, "Jill Doe", 3));
-        clients.put(3, new Client(3, "Jill Doe", 1));
-        clients.put(4, new Client(4, "Medved Balalaikin", 4));
-        clients.put(5, new Client(5, "Sample Name", 2));
+    private static Map<ClientKey, Client> createClients() {
+        HashMap<ClientKey, Client> clients = new HashMap<>();
+        clients.put(new ClientKey(1, 5), new Client(new ClientKey(1, 5), "John Smith"));
+        clients.put(new ClientKey(2, 3), new Client(new ClientKey(2, 3), "Jill Doe"));
+        clients.put(new ClientKey(3, 1), new Client(new ClientKey(3, 1), "Jill Doe"));
+        clients.put(new ClientKey(4, 4), new Client(new ClientKey(4, 4), "Medved Balalaikin"));
+        clients.put(new ClientKey(5, 2), new Client(new ClientKey(5, 2), "Sample Name"));
         return clients;
     }
 }
