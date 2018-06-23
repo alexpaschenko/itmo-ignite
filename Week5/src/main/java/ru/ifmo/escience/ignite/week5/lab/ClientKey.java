@@ -8,19 +8,19 @@ public class ClientKey {
     private final int id;
     @QuerySqlField
     @AffinityKeyMapped
-    private final int bankAccountId;
+    private final BankAccountKey bankAccountKey;
 
-    public ClientKey(int id, int bankAccountId) {
+    public ClientKey(int id, BankAccountKey bankAccountKey) {
         this.id = id;
-        this.bankAccountId = bankAccountId;
+        this.bankAccountKey = bankAccountKey;
     }
 
     public int getId() {
         return id;
     }
 
-    public int getBankAccountId() {
-        return bankAccountId;
+    public BankAccountKey getBankAccountKey() {
+        return bankAccountKey;
     }
 
     @Override
@@ -31,13 +31,13 @@ public class ClientKey {
         ClientKey clientKey = (ClientKey) o;
 
         if (id != clientKey.id) return false;
-        return bankAccountId == clientKey.bankAccountId;
+        return bankAccountKey != null ? bankAccountKey.equals(clientKey.bankAccountKey) : clientKey.bankAccountKey == null;
     }
 
     @Override
     public int hashCode() {
         int result = id;
-        result = 31 * result + bankAccountId;
+        result = 31 * result + (bankAccountKey != null ? bankAccountKey.hashCode() : 0);
         return result;
     }
 
@@ -45,7 +45,7 @@ public class ClientKey {
     public String toString() {
         return "ClientKey{" +
                 "id=" + id +
-                ", bankAccountId=" + bankAccountId +
+                ", bankAccountKey=" + bankAccountKey +
                 '}';
     }
 }

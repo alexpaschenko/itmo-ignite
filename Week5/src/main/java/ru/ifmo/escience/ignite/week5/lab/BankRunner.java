@@ -37,6 +37,10 @@ public class BankRunner {
                 .setKeyConfiguration(new CacheKeyConfiguration(BankAccountKey.class.getName(), "bankId"));
         CacheConfiguration<ClientKey, Client> clientConfig = new CacheConfiguration<>("Client");
         clientConfig.setIndexedTypes(ClientKey.class, Client.class);
+        clientConfig.getQueryEntities().stream()
+                .filter(x -> x.getValueType().equals(Client.class.getName()))
+                .findAny()
+                .ifPresent(x -> x.addQueryField("clientKey.bankAccountKey.id", Integer.class.getName(), "bankAccountId"));
 
         Ignite node = Ignition.start("Week5/config/default-client.xml");
         try {
@@ -96,11 +100,11 @@ public class BankRunner {
 
     private static Map<ClientKey, Client> createClients() {
         HashMap<ClientKey, Client> clients = new HashMap<>();
-        clients.put(new ClientKey(1, 5), new Client(new ClientKey(1, 5), "John Smith"));
-        clients.put(new ClientKey(2, 3), new Client(new ClientKey(2, 3), "Jill Doe"));
-        clients.put(new ClientKey(3, 1), new Client(new ClientKey(3, 1), "Jill Doe"));
-        clients.put(new ClientKey(4, 4), new Client(new ClientKey(4, 4), "Medved Balalaikin"));
-        clients.put(new ClientKey(5, 2), new Client(new ClientKey(5, 2), "Sample Name"));
+        clients.put(new ClientKey(1, new BankAccountKey(5, 1)), new Client(new ClientKey(1, new BankAccountKey(5, 1)), "John Smith"));
+        clients.put(new ClientKey(2, new BankAccountKey(3, 2)), new Client(new ClientKey(2, new BankAccountKey(3, 2)), "Jill Doe"));
+        clients.put(new ClientKey(3, new BankAccountKey(1, 1)), new Client(new ClientKey(3, new BankAccountKey(1, 1)), "Jill Doe"));
+        clients.put(new ClientKey(4, new BankAccountKey(4, 3)), new Client(new ClientKey(4, new BankAccountKey(4, 3)), "Medved Balalaikin"));
+        clients.put(new ClientKey(5, new BankAccountKey(2, 1)), new Client(new ClientKey(5, new BankAccountKey(2, 1)), "Sample Name"));
         return clients;
     }
 }
