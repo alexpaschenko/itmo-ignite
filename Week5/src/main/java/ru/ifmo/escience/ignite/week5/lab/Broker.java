@@ -1,16 +1,16 @@
 package ru.ifmo.escience.ignite.week5.lab;
-
+import org.apache.ignite.cache.affinity.AffinityKey;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
 public class Broker
 {
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final long brokerId;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final long exchangeId;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final long clientId;
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private final String name;
 
     public Broker(long brokerId, long exchangeId, long clientId, String name)
@@ -35,5 +35,20 @@ public class Broker
 
     public String getName() {
         return name;
+    }
+
+    public Long getKey()
+    {
+        return brokerId;
+    }
+
+    @Override
+    public String toString() {
+        return "Client{" +
+                "brokerId=" + brokerId +
+                ", exchangeId=" + exchangeId +
+                ", clientId=" + clientId +
+                ", name=" + name +
+                '}';
     }
 }
