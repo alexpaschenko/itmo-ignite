@@ -19,10 +19,10 @@ public class AppExample {
         CacheConfiguration<String, User> userCacheConfig = new CacheConfiguration<>("User");
         userCacheConfig.setCacheMode(CacheMode.PARTITIONED);
         userCacheConfig.setIndexedTypes(String.class, User.class);
-        CacheConfiguration<Integer, Entry> entryCacheConfig = new CacheConfiguration<>(Entry.class.getName());
-        entryCacheConfig.setIndexedTypes(Integer.class, Entry.class);
-        CacheConfiguration<Integer, Type> typeCacheConfig = new CacheConfiguration<>("Type");
-        typeCacheConfig.setCacheMode(CacheMode.REPLICATED);
+        CacheConfiguration<EntryId, Entry> entryCacheConfig = new CacheConfiguration<>(Entry.class.getName());
+        entryCacheConfig.setIndexedTypes(EntryId.class, Entry.class);
+//        CacheConfiguration<Integer, Type> typeCacheConfig = new CacheConfiguration<>("Type");
+//        typeCacheConfig.setCacheMode(CacheMode.REPLICATED);
 
         IgniteConfiguration cfg = new IgniteConfiguration();
         cfg.setClientMode(true);
@@ -30,16 +30,13 @@ public class AppExample {
         Ignite node = Ignition.start("Week5/config/default-client.xml");
         node.getOrCreateCache(userCacheConfig);
         node.getOrCreateCache(entryCacheConfig);
-        node.getOrCreateCache(typeCacheConfig);
+//        node.getOrCreateCache(typeCacheConfig);
 
         try {
             node.cache("User").query(new SqlFieldsQuery("CREATE TABLE if not exists \"PUBLIC\".Followers(id int, user_login varchar, " +
-                    "follower_login varchar, primary key(id, user_login)) WITH \"affinitykey=USER_LOGIN, cache_name=Followers," +
-                    "key_type=FollowersKey,value_type=Followers\""));
-            node.cache("User").query(new SqlFieldsQuery("CREATE TABLE if not exists \"PUBLIC\".Media(id int, entry_id int, " +
-                    "link varchar, primary key(id, entry_id)) WITH \"affinitykey=ENTRY_ID, cache_name=Media," +
-                    "key_type=MediaKey,value_type=Media\""));
-
+                    "follower_login varchar, primary key(id, user_login)) WITH " +
+                    "\"affinitykey=USER_LOGIN, cache_name=Followers\""));
+            node.cache("User").query(new SqlFieldsQuery("CREATE TABLE if not exists \"PUBLIC\".Media(id int, entry_id int, link varchar, primary key(id, entry_id)) WITH \"affinitykey=ENTRY_ID, cache_name=Media\""));
             node.cache("User").putAll(generateUsers());
             node.cache(Entry.class.getName()).putAll(generateEntries());
             insertMedia(node);
@@ -48,7 +45,16 @@ public class AppExample {
             System.out.println(node.cache("User")
                     .query(new SqlFieldsQuery("SELECT * FROM USER WHERE NAME = 'SpaceDoshik'"))
                     .getAll());
+            System.out.println(node.cache("Media")
+                    .query(new SqlFieldsQuery("SELECT * FROM MEDIA"))
+                    .getAll());
             System.out.println(node.cacheNames());
+            System.out.println(node.cache("User")
+                    .query(new SqlFieldsQuery("SELECT * FROM \"ru.ifmo.escience.ignite.week5.lab.Entry\".ENTRY"))
+                    .getAll());
+            System.out.println(node.cache("User").query(new SqlFieldsQuery("SELECT * FROM \"ru.ifmo.escience.ignite.week5.lab.Entry\".ENTRY ENTRY " +
+                    " INNER JOIN USER ON ENTRY.LOGIN=USER.LOGIN" +
+                    " WHERE NAME = 'SpaceDoshik'")).getAll());
             System.out.println(node.cache("User")
                     .query(new SqlFieldsQuery("SELECT LINK FROM \"PUBLIC\".MEDIA MEDIA" +
                             " INNER JOIN \"ru.ifmo.escience.ignite.week5.lab.Entry\".ENTRY ENTRY ON MEDIA.ENTRY_ID=ENTRY.ID" +
@@ -80,15 +86,17 @@ public class AppExample {
         return users;
     }
 
-    private static Map<Integer, Entry> generateEntries() {
-        Map<Integer, Entry> entries = new HashMap<>();
+    private static Map<EntryId, Entry> generateEntries() {
+        Map<EntryId, Entry> entries = new HashMap<>();
         for (int i = 0; i < 5; i++) {
-            Entry e = new Entry(i, "text" + i, "vanillacoder");
-            entries.put(i, e);
+            EntryId entryId = new EntryId(i, "vanillacoder");
+            Entry e = new Entry(entryId, "text" + i);
+            entries.put(entryId, e);
         }
         for (int i = 0; i < 5; i++) {
-            Entry e = new Entry(i + 5, "other" + i, String.valueOf(i));
-            entries.put(i + 5, e);
+            EntryId entryId = new EntryId(i + 5, "other" + i);
+            Entry e = new Entry(entryId, String.valueOf(i));
+            entries.put(entryId, e);
         }
         return entries;
     }

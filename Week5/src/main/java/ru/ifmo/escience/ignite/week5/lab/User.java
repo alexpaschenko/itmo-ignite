@@ -1,8 +1,9 @@
 package ru.ifmo.escience.ignite.week5.lab;
 
-import org.apache.ignite.cache.affinity.AffinityKeyMapped;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import org.apache.ignite.internal.util.typedef.internal.S;
+
+import java.util.Objects;
 
 public class User {
     @QuerySqlField
@@ -11,7 +12,6 @@ public class User {
     @QuerySqlField(index = true)
     private final String login;
 
-    @AffinityKeyMapped
     @QuerySqlField
     private final String userType;
 
@@ -30,12 +30,27 @@ public class User {
         return login;
     }
 
+    public String getUserType() {
+        return userType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(name, user.name) &&
+                Objects.equals(login, user.login) &&
+                Objects.equals(userType, user.userType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, login, userType);
+    }
+
     @Override
     public String toString() {
         return S.toString(User.class, this);
-    }
-
-    public String getUserType() {
-        return userType;
     }
 }

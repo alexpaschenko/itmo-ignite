@@ -1,36 +1,44 @@
 package ru.ifmo.escience.ignite.week5.lab;
 
-import org.apache.ignite.cache.affinity.AffinityKeyMapped;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import org.apache.ignite.internal.util.typedef.internal.S;
 
+import java.util.Objects;
+
 public class Entry {
     @QuerySqlField(index = true)
-    private final Integer id;
+    private final EntryId entryId;
 
     @QuerySqlField
     private final String text;
 
-    @QuerySqlField
-    @AffinityKeyMapped
-    private final String login;
 
-    public Entry(Integer id, String text, String login) {
-        this.id = id;
+    public Entry(EntryId entryId, String text) {
+        this.entryId = entryId;
         this.text = text;
-        this.login = login;
     }
 
-    public Integer getId() {
-        return id;
+
+    public EntryId getEntryId() {
+        return entryId;
     }
 
     public String getText() {
         return text;
     }
 
-    public String getLogin() {
-        return login;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Entry entry = (Entry) o;
+        return Objects.equals(entryId, entry.entryId) &&
+                Objects.equals(text, entry.text);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(entryId, text);
     }
 
     @Override
